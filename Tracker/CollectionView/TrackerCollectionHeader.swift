@@ -33,14 +33,16 @@ final class TrackerCollectionHeader: UICollectionReusableView {
     
     // MARK: - Public properties
     
-    func setupVisuals() {
+    func configureTitle(_ text: String) {
+        titleLabel.text = text
+    }
+    
+    // MARK: - Private properties
+    
+    private func setupVisuals() {
         addSubview(titleLabel)
         NSLayoutConstraint.activate([
             titleLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 28)
         ])
-    }
-    
-    func configureTitle(_ text: String) {
-        titleLabel.text = text
     }
 }

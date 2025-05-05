@@ -192,12 +192,11 @@ extension NewEventViewController : UITableViewDelegate, UITableViewDataSource {
 extension NewEventViewController: UITextFieldDelegate {
     
     func textFieldShouldEndEditing(_ textField: UITextField) -> Bool {
-        if textField.text != "" {
-            return true
-        } else {
+        guard let text = textField.text, !text.isEmpty else {
             textField.placeholder = "Название не может быть пустым"
             return false
         }
+        return true
     }
     
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {

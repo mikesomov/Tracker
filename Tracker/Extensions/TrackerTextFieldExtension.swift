@@ -1,5 +1,5 @@
 //
-//  TextFieldExtension.swift
+//  TrackerTextFieldExtension.swift
 //  Tracker
 //
 //  Created by Mike Somov on 28.03.2025.

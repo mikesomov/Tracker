@@ -207,12 +207,11 @@ extension NewHabitViewController: UITableViewDelegate, UITableViewDataSource {
 extension NewHabitViewController: UITextFieldDelegate {
     
     func textFieldShouldEndEditing(_ textField: UITextField) -> Bool {
-        if textField.text != "" {
-            return true
-        } else {
+        guard let text = textField.text, !text.isEmpty else {
             textField.placeholder = "Название не может быть пустым"
             return false
         }
+        return true
     }
     
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
@@ -242,11 +241,5 @@ extension NewHabitViewController: WeekdaySelectorDelegate {
         selectedSchedule = schedule
         buttonValidation()
         tableView.reloadData()
-    }
-}
-
-extension UIView {
-    func addSubviews(_ views: UIView...) {
-        views.forEach({addSubview($0)})
     }
 }

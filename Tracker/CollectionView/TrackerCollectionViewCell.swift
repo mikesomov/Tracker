@@ -109,7 +109,9 @@ final class TrackerCollectionViewCell: UICollectionViewCell {
         plusButton.setImage(image, for: .normal)
     }
     
-    func setupVisuals() {
+    // MARK: Private methods
+    
+    private func setupVisuals() {
         addSubviewsInCell(bodyView, emojiView, emojiLabel, titleLabel, dayCounterLabel, plusButton)
         NSLayoutConstraint.activate([
             bodyView.heightAnchor.constraint(equalToConstant: 90),
@@ -140,8 +142,6 @@ final class TrackerCollectionViewCell: UICollectionViewCell {
         ])
     }
     
-    // MARK: Private methods
-    
     @objc private func trackerCompletedTapped() {
         guard let trackerID = trackerID,
               let indexPath = indexPath else {
@@ -153,19 +153,5 @@ final class TrackerCollectionViewCell: UICollectionViewCell {
         } else {
             delegate?.completedTracker(id: trackerID, indexPath: indexPath)
         }
-    }
-}
-
-// MARK: - Extensions
-
-extension UICollectionViewCell {
-    func addSubviewsInCell(_ views: UIView...) {
-        views.forEach({addSubview($0)})
-    }
-}
-
-extension UIView {
-    func addSubviewsInView(_ views: UIView...) {
-        views.forEach({addSubview($0)})
     }
 }
