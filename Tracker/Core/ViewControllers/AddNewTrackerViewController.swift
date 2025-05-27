@@ -87,7 +87,6 @@ final class AddNewTrackerViewController: UIViewController {
     }
 }
 
-
 // MARK: - Extensions
 
 extension AddNewTrackerViewController: DismissProtocol {

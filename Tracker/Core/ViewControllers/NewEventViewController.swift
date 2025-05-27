@@ -119,15 +119,6 @@ final class NewEventViewController: UIViewController {
         return tableView
     }()
     
-    //    private lazy var stackView: UIStackView = {
-    //       let stackView = UIStackView()
-    //        stackView.translatesAutoresizingMaskIntoConstraints = false
-    //        stackView.axis = .horizontal
-    //        stackView.distribution = .fillEqually
-    //        stackView.spacing = 8
-    //        return stackView
-    //    }()
-    
     // MARK: - Lifecycle
     
     override func viewDidLoad() {

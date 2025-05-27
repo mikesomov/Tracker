@@ -58,10 +58,17 @@ final class TrackerStore {
     }
     
     func decodingTrackers(from trackersCoreData: TrackerCoreData) -> Tracker? {
-        guard let id = trackersCoreData.id,
-              let title = trackersCoreData.title,
-              let color = trackersCoreData.color,
-              let emoji = trackersCoreData.emoji else { return nil }
-        return Tracker(id: id, title: title, color: UIColorMarshalling.color(from: color), emoji: emoji, schedule: trackersCoreData.schedule as! [Int])
+        guard
+            let id = trackersCoreData.id,
+            let title = trackersCoreData.title,
+            let colorHex = trackersCoreData.color,
+            let emoji = trackersCoreData.emoji,
+            let schedule = trackersCoreData.schedule as? [Int]
+        else {
+            return nil
+        }
+        
+        let color = UIColorMarshalling.color(from: colorHex)
+        return Tracker(id: id, title: title, color: color, emoji: emoji, schedule: schedule)
     }
 }
