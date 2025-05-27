@@ -10,8 +10,8 @@ import UIKit
 // MARK: - Protocols
 
 protocol WeekDaysSelectorSwitch: AnyObject {
-    func weekDayAppend(_ weekDay: Weekday)
-    func weekDayRemove(_ weekDay: Weekday)
+    func weekDayAppend(_ weekDay: Int)
+    func weekDayRemove(_ weekDay: Int)
 }
 
 // MARK: - Classes
@@ -20,7 +20,7 @@ final class WeekDaysSelector: UITableViewCell {
     
     // MARK: - Public properties
     
-    var weekDay: Weekday?
+    var weekDay: Int?
     
     // MARK: - Private properties
     
@@ -52,7 +52,7 @@ final class WeekDaysSelector: UITableViewCell {
     
     // MARK: - Public methods
     
-    func configureCell(_ weekDayView: String, _ weekDay: Weekday) {
+    func configureCell(_ weekDayView: String, _ weekDay: Int) {
         backgroundColor = .ypBackground
         weekDayTitle.text = weekDayView
         self.weekDay = weekDay

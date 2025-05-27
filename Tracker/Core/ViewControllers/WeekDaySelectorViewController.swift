@@ -10,7 +10,7 @@ import UIKit
 // MARK: Protocols
 
 protocol WeekdaySelectorDelegate: AnyObject {
-    func weekdaySelectorScreen(_ screen: WeekDaySelectorViewController, didSelectDays schedule: [Weekday])
+    func weekdaySelectorScreen(_ screen: WeekDaySelectorViewController, didSelectDays schedule: [Int])
 }
 
 // MARK: - Classes
@@ -19,9 +19,9 @@ final class WeekDaySelectorViewController: UIViewController {
     
     // MARK: - Private properties
     
-    private let daysOfWeek: [Weekday] = [.monday, .tuesday, .wednesday, .thursday, .friday, .saturday, .sunday]
+    private let daysOfWeek: [Int] = [2, 3, 4, 5, 6, 7, 1]
     private let daysOfWeekView = ["Понедельник", "Вторник", "Среда", "Четверг", "Пятница", "Суббота", "Воскресенье"]
-    private var selectedDays: [Weekday] = []
+    private var selectedDays: [Int] = []
     
     private lazy var button: UIButton = {
         let button = TrackerButton(title: "Готово")
@@ -83,18 +83,6 @@ final class WeekDaySelectorViewController: UIViewController {
     weak var delegate: WeekdaySelectorDelegate?
 }
 
-// MARK: - Enums
-
-enum Weekday: String {
-    case monday = "Пн"
-    case tuesday = "Вт"
-    case wednesday = "Ср"
-    case thursday = "Чт"
-    case friday = "Пт"
-    case saturday = "Сб"
-    case sunday = "Вск"
-}
-
 // MARK: - Extensions
 
 extension WeekDaySelectorViewController: UITableViewDelegate, UITableViewDataSource {
@@ -115,11 +103,11 @@ extension WeekDaySelectorViewController: UITableViewDelegate, UITableViewDataSou
 
 extension WeekDaySelectorViewController: WeekDaysSelectorSwitch {
 
-    func weekDayAppend(_ weekDay: Weekday) {
+    func weekDayAppend(_ weekDay: Int) {
         selectedDays.append(weekDay)
     }
     
-    func weekDayRemove(_ weekDay: Weekday) {
+    func weekDayRemove(_ weekDay: Int) {
         if let index = selectedDays.firstIndex(of: weekDay) {
             selectedDays.remove(at: index)
         }

@@ -10,6 +10,6 @@ import UIKit
 // MARK: - Structs
 
 struct TrackerCategory {
-    let title: CategoryList
-    let tracker: [Tracker]
+    let title: String
+    let trackers: [Tracker]
 }
