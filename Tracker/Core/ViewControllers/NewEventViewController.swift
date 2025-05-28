@@ -17,6 +17,7 @@ final class NewEventViewController: UIViewController {
     
     // MARK: Private properties
     
+    private let labelTextLimit = 28
     private var enteredEventName = ""
     private var selectedEmoji: (emoji: String?, item: IndexPath?)
     private var selectedColor: (color: UIColor?, item: IndexPath?)
@@ -60,7 +61,7 @@ final class NewEventViewController: UIViewController {
     }()
     
     private lazy var limitLabel: UILabel = {
-        let limitLabel = TrackerTextLabel(text: "Ограничение 38 символов", fontSize: 17, fontWeight: .regular)
+        let limitLabel = TrackerTextLabel(text: "Ограничение 28 символов", fontSize: 17, fontWeight: .regular)
         limitLabel.textColor = .ypRed
         limitLabel.isHidden = true
         return limitLabel
@@ -130,20 +131,16 @@ final class NewEventViewController: UIViewController {
     // MARK: - Public methods
     
     func buttonValidation() {
-        if selectedCategory != nil &&
-            selectedColor.color != nil &&
-            selectedEmoji.emoji != nil &&
-            enteredEventName.count > 0 &&
-            enteredEventName.count <= 38
-        {
-            createButton.isEnabled = true
-            createButton.backgroundColor = .ypBlack
-            createButton.setTitleColor(.ypWhite, for: .normal)
-        } else {
-            createButton.isEnabled = false
-            createButton.backgroundColor = .ypGray
-            createButton.setTitleColor(.ypBlack, for: .normal)
-        }
+        let isNameValid = enteredEventName.count <= labelTextLimit
+        let isCategorySelected = selectedCategory != nil
+        let isColorSelected = selectedColor.color != nil
+        let isEmojiSelected = selectedEmoji.emoji != nil
+
+        let isFormValid = isNameValid && isCategorySelected && isColorSelected && isEmojiSelected
+
+        createButton.isEnabled = isFormValid
+        createButton.backgroundColor = isFormValid ? .ypBlack : .ypGray
+        createButton.setTitleColor(isFormValid ? .ypWhite : .ypBlack, for: .normal)
     }
     
     func setupVisuals() {
@@ -238,30 +235,26 @@ extension NewEventViewController: UITextFieldDelegate {
         guard let text = textField.text else { return false }
         enteredEventName = text
         buttonValidation()
-        if text.count >= 38 {
-            limitLabel.isHidden = false
-            return false
-        } else {
-            limitLabel.isHidden = true
-            return true
-        }
+        limitLabel.isHidden = text.count < labelTextLimit
+        return text.count < labelTextLimit
     }
     
     func textFieldShouldEndEditing(_ textField: UITextField) -> Bool {
-        if textField.text != "" {
-            return true
-        } else {
+        guard let text = textField.text, !text.isEmpty else {
             textField.placeholder = "Название не может быть пустым"
             return false
         }
+        return true
     }
-    
+
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
         textField.resignFirstResponder()
+        
         guard let text = textField.text, !text.isEmpty else {
             return false
         }
-        return text.count > 38 ? false : true
+
+        return text.count <= labelTextLimit
     }
 }
 
@@ -342,29 +335,39 @@ extension NewEventViewController: UICollectionViewDelegate {
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         guard let cell = collectionView.cellForItem(at: indexPath) as? EmojiColorCollectionViewCell else { return }
         let sectionNumber = indexPath.section
+        
         switch sectionNumber {
         case 0:
-            if selectedEmoji.item != nil {
-                let previousItem = selectedEmoji.item!
+            if let previousItem = selectedEmoji.item {
                 let previousCell = collectionView.cellForItem(at: previousItem)
                 previousCell?.backgroundColor = .clear
             }
             cell.configureSelectedEmojiCell()
-            selectedEmoji.emoji = emojiList[indexPath.item]
+            selectedEmoji.emoji = emojiList[safe: indexPath.item]
             selectedEmoji.item = indexPath
+            
         case 1:
-            if selectedColor.item != nil {
-                let previousItem = selectedColor.item!
+            if let previousItem = selectedColor.item {
                 let previousCell = collectionView.cellForItem(at: previousItem)
                 previousCell?.layer.borderWidth = 0
             }
-            cell.configureSelectedColorCell(with: colorList[indexPath.item])
-            selectedColor.color = colorList[indexPath.item]
-            selectedColor.item = indexPath
+            if let color = colorList[safe: indexPath.item] {
+                cell.configureSelectedColorCell(with: color)
+                selectedColor.color = color
+                selectedColor.item = indexPath
+            }
+            
         default:
             assertionFailure("Invalid section number")
         }
+        
         buttonValidation()
+    }
+}
+
+extension Collection {
+    subscript(safe index: Index) -> Element? {
+        return indices.contains(index) ? self[index] : nil
     }
 }
 

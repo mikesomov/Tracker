@@ -23,6 +23,7 @@ final class NewHabitViewController: UIViewController {
     
     // MARK: - Private properties
     
+    private let labelTextLimit = 28
     private var habitName = ""
     private var selectedCategory: TrackerCategory?
     private var selectedSchedule: [Int] = []
@@ -61,7 +62,7 @@ final class NewHabitViewController: UIViewController {
     }()
     
     private lazy var limitLabel: UILabel = {
-        let limitLabel = TrackerTextLabel(text: "Ограничение 38 символов", fontSize: 17, fontWeight: .regular)
+        let limitLabel = TrackerTextLabel(text: "Ограничение 28 символов", fontSize: 17, fontWeight: .regular)
         limitLabel.textColor = .ypRed
         limitLabel.isHidden = true
         return limitLabel
@@ -145,7 +146,7 @@ final class NewHabitViewController: UIViewController {
             selectedSchedule.count > 0 &&
             selectedEmoji.emoji != nil &&
             habitName.count > 0 &&
-            habitName.count <= 38
+            habitName.count <= labelTextLimit
         {
             createButton.isEnabled = true
             createButton.backgroundColor = .ypBlack
@@ -276,14 +277,20 @@ extension NewHabitViewController: UITextFieldDelegate {
         guard let text = textField.text, !text.isEmpty else {
             return false
         }
-        return text.count > 38 ? false : true
+        return text.count <= labelTextLimit
     }
     
     func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
-        guard let text = textField.text else { return false }
-        habitName = text
+        guard let currentText = textField.text,
+              let textRange = Range(range, in: currentText) else {
+            return false
+        }
+        
+        let updatedText = currentText.replacingCharacters(in: textRange, with: string)
+        habitName = updatedText
         buttonValidation()
-        if text.count >= 38 {
+        
+        if updatedText.count > labelTextLimit {
             limitLabel.isHidden = false
             return false
         } else {
@@ -317,16 +324,16 @@ extension NewHabitViewController: UICollectionViewDataSource {
     }
     
     func collectionView(_ collectionView: UICollectionView,
-                            numberOfItemsInSection section: Int) -> Int {
-            switch section {
-            case 0:
-                return emojiList.count
-            case 1:
-                return colorList.count
-            default:
-                return 0
-            }
+                        numberOfItemsInSection section: Int) -> Int {
+        switch section {
+        case 0:
+            return emojiList.count
+        case 1:
+            return colorList.count
+        default:
+            return 0
         }
+    }
     
     func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
         guard let view = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: "header", for: indexPath) as? EmojiColorCollectionHeader else { return UICollectionReusableView() }
@@ -343,24 +350,24 @@ extension NewHabitViewController: UICollectionViewDataSource {
     }
     
     func collectionView(_ collectionView: UICollectionView,
-                            cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-            guard let cell = collectionView.dequeueReusableCell(
-                    withReuseIdentifier: "cell",
-                    for: indexPath
-            ) as? EmojiColorCollectionViewCell else {
-                return UICollectionViewCell()
-            }
-
-            if indexPath.section == 0 {
-                let emoji = emojiList[indexPath.item]
-                cell.configureCell(emoji: emoji, color: .clear)
-            } else {
-                let color = colorList[indexPath.item]
-                cell.configureCell(emoji: "", color: color)
-            }
-
-            return cell
+                        cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+        guard let cell = collectionView.dequeueReusableCell(
+            withReuseIdentifier: "cell",
+            for: indexPath
+        ) as? EmojiColorCollectionViewCell else {
+            return UICollectionViewCell()
         }
+        
+        if indexPath.section == 0 {
+            let emoji = emojiList[indexPath.item]
+            cell.configureCell(emoji: emoji, color: .clear)
+        } else {
+            let color = colorList[indexPath.item]
+            cell.configureCell(emoji: "", color: color)
+        }
+        
+        return cell
+    }
 }
 
 extension NewHabitViewController: UICollectionViewDelegateFlowLayout {
@@ -393,30 +400,36 @@ extension NewHabitViewController: UICollectionViewDelegate {
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         guard let cell = collectionView.cellForItem(at: indexPath) as? EmojiColorCollectionViewCell else { return }
+        
         let sectionNumber = indexPath.section
+        
         switch sectionNumber {
         case 0:
-            if selectedEmoji.item != nil {
-                let previousItem = selectedEmoji.item!
+            if let previousItem = selectedEmoji.item {
                 let previousCell = collectionView.cellForItem(at: previousItem)
                 previousCell?.backgroundColor = .clear
             }
             
             cell.configureSelectedEmojiCell()
-            selectedEmoji.emoji = emojiList[indexPath.item]
+            selectedEmoji.emoji = emojiList[safe: indexPath.item]
             selectedEmoji.item = indexPath
+            
         case 1:
-            if selectedColor.item != nil {
-                let previousItem = selectedColor.item!
+            if let previousItem = selectedColor.item {
                 let previousCell = collectionView.cellForItem(at: previousItem)
                 previousCell?.layer.borderWidth = 0
             }
-            cell.configureSelectedColorCell(with: colorList[indexPath.item])
-            selectedColor.color = colorList[indexPath.item]
-            selectedColor.item = indexPath
+            
+            if let selected = colorList[safe: indexPath.item] {
+                cell.configureSelectedColorCell(with: selected)
+                selectedColor.color = selected
+                selectedColor.item = indexPath
+            }
+            
         default:
             assertionFailure("Invalid section number")
         }
+        
         buttonValidation()
     }
 }

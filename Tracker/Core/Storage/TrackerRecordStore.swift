@@ -12,26 +12,24 @@ final class TrackerRecordStore {
     
     // MARK: - Private properties
     
-    private let context: NSManagedObjectContext
-    
-    // MARK: - Initialisers
-    
-    convenience init() {
-        let context = (UIApplication.shared.delegate as! AppDelegate).persistentContainer.viewContext
-        self.init(context: context)
-    }
-    
-    init(context: NSManagedObjectContext) {
-        self.context = context
-    }
-    
+    private let context: NSManagedObjectContext = CoreDataManager.shared.context
+
     // MARK: - Public methods
-    
+
     func addNewRecord(from trackerRecord: TrackerRecord) {
-        guard let entity = NSEntityDescription.entity(forEntityName: "TrackerRecordCoreData", in: context) else { return }
-        let newRecord  = TrackerRecordCoreData(entity: entity, insertInto: context)
+        guard let entity = NSEntityDescription.entity(forEntityName: "TrackerRecordCoreData", in: context) else {
+            assertionFailure("Failed to create entity description for TrackerRecordCoreData")
+            return
+        }
+
+        let newRecord = TrackerRecordCoreData(entity: entity, insertInto: context)
         newRecord.id = trackerRecord.id
         newRecord.date = trackerRecord.date
-        try! context.save()
+
+        do {
+            try context.save()
+        } catch {
+            assertionFailure("Failed to save context: \(error.localizedDescription)")
+        }
     }
 }

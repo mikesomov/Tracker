@@ -166,8 +166,8 @@ final class TrackerViewController: UIViewController {
     }
     
     private func reloadHolders() {
-        let allTrackersEmpty = categories.filter({!$0.trackers.isEmpty}).count == 0
-        let visibleTrackersEmpty = visibleCategories.filter({!$0.trackers.isEmpty}).count == 0
+        let allTrackersEmpty = categories.allSatisfy { $0.trackers.isEmpty }
+        let visibleTrackersEmpty = visibleCategories.allSatisfy { $0.trackers.isEmpty }
         
         stackViewEmptyHolder.isHidden = !allTrackersEmpty
         collectionView.isHidden = visibleTrackersEmpty

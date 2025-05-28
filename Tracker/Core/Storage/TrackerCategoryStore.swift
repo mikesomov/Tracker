@@ -20,21 +20,10 @@ final class TrackerCategoryStore: NSObject {
     
     // MARK: - Private properties
     
-    private let context: NSManagedObjectContext
+    private let context: NSManagedObjectContext = CoreDataManager.shared.context
     private let trackerStore = TrackerStore()
     
-    // MARK: - Initialisers
-    
-    convenience override init() {
-        let context = (UIApplication.shared.delegate as! AppDelegate).persistentContainer.viewContext
-        self.init(context: context)
-    }
-    
-    init(context: NSManagedObjectContext) {
-        self.context = context
-    }
-    
-    // MARK:  - Delegates
+    // MARK: - Delegates
     
     weak var delegate: TrackerCategoryStoreDelegate?
 }
@@ -50,15 +39,31 @@ extension TrackerCategoryStore: NSFetchedResultsControllerDelegate {
 extension TrackerCategoryStore {
     
     func createCategory(_ category: TrackerCategory) {
-        guard let entity = NSEntityDescription.entity(forEntityName: "TrackerCategoryCoreData", in: context) else { return }
+        guard let entity = NSEntityDescription.entity(forEntityName: "TrackerCategoryCoreData", in: context) else {
+            assertionFailure("Failed to create entity description for TrackerCategoryCoreData")
+            return
+        }
+        
         let categoryEntity = TrackerCategoryCoreData(entity: entity, insertInto: context)
         categoryEntity.title = category.title
         categoryEntity.trackers = NSSet(array: [])
-        try! context.save()
+        
+        do {
+            try context.save()
+        } catch {
+            assertionFailure("Failed to save context: \(error.localizedDescription)")
+        }
     }
     
     func fetchAllCategories() -> [TrackerCategoryCoreData] {
-        return try! context.fetch(NSFetchRequest<TrackerCategoryCoreData>(entityName: "TrackerCategoryCoreData"))
+        let fetchRequest = NSFetchRequest<TrackerCategoryCoreData>(entityName: "TrackerCategoryCoreData")
+        
+        do {
+            return try context.fetch(fetchRequest)
+        } catch {
+            assertionFailure("Failed to fetch TrackerCategoryCoreData: \(error.localizedDescription)")
+            return []
+        }
     }
     
     func decodingCategory(from trackerCategoryCoreData: TrackerCategoryCoreData) -> TrackerCategory? {
@@ -74,15 +79,28 @@ extension TrackerCategoryStore {
     }
     
     func createCategoryAndTracker(tracker: Tracker, with titleCategory: String) {
-        guard let trackerCoreData = trackerStore.addNewTracker(from: tracker) else { return }
-        guard let existingCategory = fetchCategory(with: titleCategory) else { return }
+        guard let trackerCoreData = trackerStore.addNewTracker(from: tracker) else {
+            assertionFailure("Failed to create TrackerCoreData from Tracker")
+            return
+        }
+        
+        guard let existingCategory = fetchCategory(with: titleCategory) else {
+            assertionFailure("Category with title \(titleCategory) not found")
+            return
+        }
+        
         var existingTrackers = existingCategory.trackers?.allObjects as? [TrackerCoreData] ?? []
         existingTrackers.append(trackerCoreData)
         existingCategory.trackers = NSSet(array: existingTrackers)
-        try! context.save()
+        
+        do {
+            try context.save()
+        } catch {
+            assertionFailure("Failed to save context: \(error.localizedDescription)")
+        }
     }
     
     func fetchCategory(with title: String) -> TrackerCategoryCoreData? {
-        return fetchAllCategories().filter({$0.title == title}).first ?? nil
+        return fetchAllCategories().first { $0.title == title }
     }
 }
