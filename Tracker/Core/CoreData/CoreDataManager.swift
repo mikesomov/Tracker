@@ -45,3 +45,4 @@ final class CoreDataManager {
 
     private init() {}
 }
+
