@@ -20,6 +20,7 @@ final class AddNewTrackerViewController: UIViewController {
     // MARK: - Public properties
     
     weak var delegate: ReloadCollectionProtocol?
+    weak var createDelegate: CreateTrackerProtocol?
     
     // MARK: - Private properties
     
@@ -69,6 +70,7 @@ final class AddNewTrackerViewController: UIViewController {
         sender.showAnimation {
             let newHabitViewController = NewHabitViewController()
             newHabitViewController.delegate = self
+            newHabitViewController.createDelegate = self.createDelegate
             let navigationController = UINavigationController(rootViewController: newHabitViewController)
             self.present(navigationController, animated: true)
         }
@@ -78,12 +80,12 @@ final class AddNewTrackerViewController: UIViewController {
         sender.showAnimation {
             let newEventViewController = NewEventViewController()
             newEventViewController.delegate = self
+            newEventViewController.createDelegate = self.createDelegate
             let navigationController = UINavigationController(rootViewController: newEventViewController)
             self.present(navigationController, animated: true)
         }
     }
 }
-
 
 // MARK: - Extensions
 
