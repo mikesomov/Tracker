@@ -17,7 +17,7 @@ final class NewEventViewController: UIViewController {
     
     // MARK: Private properties
     
-    private let labelTextLimit = 28
+    private let labelTextLimit = 38
     private var enteredEventName = ""
     private var selectedEmoji: (emoji: String?, item: IndexPath?)
     private var selectedColor: (color: UIColor?, item: IndexPath?)
@@ -61,7 +61,7 @@ final class NewEventViewController: UIViewController {
     }()
     
     private lazy var limitLabel: UILabel = {
-        let limitLabel = TrackerTextLabel(text: "Ограничение 28 символов", fontSize: 17, fontWeight: .regular)
+        let limitLabel = TrackerTextLabel(text: "Ограничение 38 символов", fontSize: 17, fontWeight: .regular)
         limitLabel.textColor = .ypRed
         limitLabel.isHidden = true
         return limitLabel
@@ -221,8 +221,14 @@ extension NewEventViewController : UITableViewDelegate, UITableViewDataSource {
         tableView.deselectRow(at: indexPath, animated: true)
         let selectedItem = tableList[indexPath.row]
         if selectedItem == "Категория" {
+            let categoryViewModel = CategoryViewModel()
             let categoryViewController = CategoryViewController()
-            categoryViewController.delegate = self
+            categoryViewController.viewModel = categoryViewModel
+            categoryViewController.onCategorySelected = { [weak self] category in
+                self?.selectedCategory = category
+                self?.tableView.reloadData()
+                self?.buttonValidation()
+            }
             let navigationController = UINavigationController(rootViewController: categoryViewController)
             present(navigationController, animated: true)
         }
@@ -259,7 +265,7 @@ extension NewEventViewController: UITextFieldDelegate {
 }
 
 extension NewEventViewController: CategoryViewControllerDelegate {
-    func categoryScreen(_ screen: CategoryViewController, didSelectCategory category: TrackerCategory) {
+    func categoryScreen(didSelectCategory category: TrackerCategory) {
         selectedCategory = category
         tableView.reloadData()
         buttonValidation()

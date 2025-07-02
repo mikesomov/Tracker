@@ -19,7 +19,7 @@ protocol TrackerCompletedDelegate: AnyObject {
 final class TrackerCollectionViewCell: UICollectionViewCell {
     
     // MARK: - Public properties
-
+    
     lazy var bodyView: UIView = {
         let bodyView = UIView()
         bodyView.layer.cornerRadius = 16
@@ -74,7 +74,7 @@ final class TrackerCollectionViewCell: UICollectionViewCell {
     private var isCompletedToday: Bool = false
     private var trackerID: UUID?
     private var indexPath: IndexPath?
-    private var completedDays: Int? = 7
+    private var allowManualTap = false
     
     // MARK: - Lifecycle
     
@@ -95,6 +95,7 @@ final class TrackerCollectionViewCell: UICollectionViewCell {
     // MARK: - Public methods
     
     func configureCell(tracker: Tracker, isCompletedToday: Bool, completedDays: Int, indexPath: IndexPath) {
+        self.allowManualTap = true
         self.indexPath = indexPath
         self.trackerID = tracker.id
         self.isCompletedToday = isCompletedToday
@@ -143,11 +144,18 @@ final class TrackerCollectionViewCell: UICollectionViewCell {
     }
     
     @objc private func trackerCompletedTapped() {
-        guard let trackerID = trackerID,
-              let indexPath = indexPath else {
-            assertionFailure("no trackerID")
+        guard allowManualTap else {
             return
         }
+        
+        guard let trackerID = trackerID,
+              let indexPath = indexPath else {
+            assertionFailure("no trackerID or indexPath")
+            return
+        }
+        
+        allowManualTap = false
+        
         if isCompletedToday {
             delegate?.uncompletedTracker(id: trackerID, indexPath: indexPath)
         } else {

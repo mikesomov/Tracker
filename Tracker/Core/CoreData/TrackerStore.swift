@@ -24,7 +24,6 @@ final class TrackerStore {
         newTracker.color = UIColorMarshalling.hexString(from: tracker.color)
         newTracker.emoji = tracker.emoji
         newTracker.schedule = tracker.schedule as NSArray?
-        print("Added Tracker to Core Data: \(tracker.title)")
         return newTracker
     }
 
@@ -34,7 +33,6 @@ final class TrackerStore {
         do {
             let trackerCoreDataArray = try context.fetch(fetchRequest)
             let trackers = trackerCoreDataArray.map { trackerCoreData in
-                print("Fetched Tracker: \(trackerCoreData.title ?? "")")
                 return Tracker(
                     id: trackerCoreData.id ?? UUID(),
                     title: trackerCoreData.title ?? "",
