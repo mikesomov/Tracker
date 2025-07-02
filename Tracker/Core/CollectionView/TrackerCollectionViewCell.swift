@@ -147,20 +147,19 @@ final class TrackerCollectionViewCell: UICollectionViewCell {
         guard allowManualTap else {
             return
         }
-
+        
         guard let trackerID = trackerID,
               let indexPath = indexPath else {
             assertionFailure("no trackerID or indexPath")
             return
         }
-
+        
         allowManualTap = false
-
+        
         if isCompletedToday {
             delegate?.uncompletedTracker(id: trackerID, indexPath: indexPath)
         } else {
             delegate?.completedTracker(id: trackerID, indexPath: indexPath)
         }
     }
-
 }

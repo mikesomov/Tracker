@@ -84,6 +84,4 @@ final class TrackerRecordStore {
             assertionFailure("❌ Failed to delete TrackerRecord: \(error.localizedDescription)")
         }
     }
-
-
 }

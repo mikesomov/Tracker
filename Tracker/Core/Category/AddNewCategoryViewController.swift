@@ -37,8 +37,8 @@ final class AddNewCategoryViewController: UIViewController {
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        navigationItem.leftBarButtonItem = nil
-        navigationItem.hidesBackButton = true    }
+        navigationController?.setNavigationBarHidden(true, animated: false)
+    }
     
     // MARK: - Public methods
     

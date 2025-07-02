@@ -105,10 +105,20 @@ final class TrackerViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        navigationController?.navigationBar.prefersLargeTitles = true
+        navigationItem.largeTitleDisplayMode = .always
+        title = "Трекеры"
+        
+        setupNavigationBar()
         setupNavigationBar()
         setupVisuals()
         setupContent(Date())
         trackerCategoryStore.delegate = self
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        navigationItem.largeTitleDisplayMode = .always
     }
     
     // MARK: - Private methods
@@ -367,5 +377,10 @@ extension TrackerViewController:  UISearchResultsUpdating, UISearchBarDelegate {
         fetchCategory()
         collectionView.reloadData()
         reloadHolders()
+        
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) {
+            self.navigationItem.largeTitleDisplayMode = .always
+            self.navigationController?.navigationBar.sizeToFit()
+        }
     }
 }

@@ -11,9 +11,6 @@ final class OnboardingViewController: UIViewController {
     
     // MARK: - Private properties
     
-    private let isLastPage: Bool
-    private let buttonAction: (() -> Void)?
-    
     private lazy var button: UIButton = {
         let button = UIButton()
         button.translatesAutoresizingMaskIntoConstraints = false
@@ -45,8 +42,6 @@ final class OnboardingViewController: UIViewController {
     // MARK: - Initialisers
     
     init(image: UIImage, buttonText: String, labelText: String, isLastPage: Bool = false, buttonAction: (() -> Void)? = nil) {
-        self.isLastPage = isLastPage
-        self.buttonAction = buttonAction
         super.init(nibName: nil, bundle: nil)
         backgroundImage.image = image
         button.setTitle(buttonText, for: .normal)
@@ -88,12 +83,9 @@ final class OnboardingViewController: UIViewController {
     // MARK: - Private methods
     
     @objc private func buttonTapped() {
-        if isLastPage {
             let window = UIApplication.shared.windows.first
             window?.rootViewController = TabBarViewController()
             window?.makeKeyAndVisible()
-        } else {
-            buttonAction?()
         }
     }
-}
+
