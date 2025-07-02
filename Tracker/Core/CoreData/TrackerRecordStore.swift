@@ -23,6 +23,7 @@ final class TrackerRecordStore {
         }
 
         let newRecord = TrackerRecordCoreData(entity: entity, insertInto: context)
+        newRecord.id = trackerRecord.id
 
         let calendar = Calendar.current
         let startOfDay = calendar.startOfDay(for: trackerRecord.date)
@@ -51,9 +52,38 @@ final class TrackerRecordStore {
 
         do {
             let results = try context.fetch(fetchRequest)
-            return results.map { TrackerRecord(id: $0.id ?? UUID(), date: $0.date ?? Date()) }
+            let mapped = results.map { TrackerRecord(id: $0.id ?? UUID(), date: $0.date ?? Date()) }
+            for _ in mapped {
+            }
+            return mapped
         } catch {
             return []
         }
     }
+    
+    func deleteRecord(for id: UUID, on date: Date) {
+        let fetchRequest = NSFetchRequest<TrackerRecordCoreData>(entityName: "TrackerRecordCoreData")
+        let calendar = Calendar.current
+        let startOfDay = calendar.startOfDay(for: date)
+        let endOfDay = calendar.date(byAdding: .day, value: 1, to: startOfDay)!
+
+        fetchRequest.predicate = NSPredicate(
+            format: "id == %@ AND date >= %@ AND date < %@",
+            id as CVarArg,
+            startOfDay as NSDate,
+            endOfDay as NSDate
+        )
+
+        do {
+            let records = try context.fetch(fetchRequest)
+            for record in records {
+                context.delete(record)
+            }
+            try context.save()
+        } catch {
+            assertionFailure("❌ Failed to delete TrackerRecord: \(error.localizedDescription)")
+        }
+    }
+
+
 }
