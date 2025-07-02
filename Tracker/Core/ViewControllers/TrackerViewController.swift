@@ -149,6 +149,7 @@ final class TrackerViewController: UIViewController {
     
     private func setupContent(_ date: Date) {
         self.weekDay = currentDate.component(.weekday, from: date)
+        loadCompletedTrackers(for: date)
         showTrackersInDate(date)
         reloadHolders()
     }
@@ -158,11 +159,16 @@ final class TrackerViewController: UIViewController {
         collectionView.reloadData()
     }
     
+    private func loadCompletedTrackers(for date: Date) {
+        completedTrackers = trackerRecordStore.fetchRecords(for: date)
+    }
+    
     private func checkIfTrackersCompletedToday(id: UUID) -> Bool {
-        completedTrackers.contains { trackerRecord in
-            let isSameDay = Calendar.current.isDate(trackerRecord.date, inSameDayAs: datePicker.date)
-            return trackerRecord.id == id && isSameDay
+        let result = completedTrackers.contains { record in
+            let isSameDay = Calendar.current.isDate(record.date, inSameDayAs: datePicker.date)
+            return record.id == id && isSameDay
         }
+        return result
     }
     
     private func reloadHolders() {
@@ -222,22 +228,24 @@ extension TrackerViewController: UICollectionViewDataSource {
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "cell", for: indexPath) as? TrackerCollectionViewCell else { return UICollectionViewCell() }
+        guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "cell", for: indexPath) as? TrackerCollectionViewCell else {
+            return UICollectionViewCell()
+        }
+
         let tracker = visibleCategories[indexPath.section].trackers[indexPath.item]
         let isCompletedToday = checkIfTrackersCompletedToday(id: tracker.id)
         let completedDays = completedTrackers.filter { $0.id == tracker.id }.count
+
+        cell.delegate = self
         cell.configureCell(
             tracker: tracker,
             isCompletedToday: isCompletedToday,
             completedDays: completedDays,
             indexPath: indexPath
         )
+
+        cell.plusButton.isHidden = datePicker.date > Date()
         
-        if datePicker.date > Date() {
-            cell.plusButton.isHidden = true
-        } else {
-            cell.plusButton.isHidden = false
-        }
         return cell
     }
 }
@@ -293,14 +301,14 @@ extension TrackerViewController: TrackerCompletedDelegate {
     
     func completedTracker(id: UUID, indexPath: IndexPath) {
         let trackerRecord = TrackerRecord(id: id, date: datePicker.date)
+        trackerRecordStore.addNewRecord(from: trackerRecord)
         completedTrackers.append(trackerRecord)
         collectionView.reloadItems(at: [indexPath])
     }
     
     func uncompletedTracker(id: UUID, indexPath: IndexPath) {
-        completedTrackers.removeAll { trackerRecord in
-            let isSameDay = Calendar.current.isDate(trackerRecord.date, inSameDayAs: datePicker.date)
-            return trackerRecord.id == id && isSameDay
+        completedTrackers.removeAll { record in
+            Calendar.current.isDate(record.date, inSameDayAs: datePicker.date) && record.id == id
         }
         collectionView.reloadItems(at: [indexPath])
     }
@@ -316,7 +324,6 @@ extension TrackerViewController: CreateTrackerProtocol {
         }
         
         guard let refreshedCategory = trackerCategoryStore.fetchCategory(with: category) else {
-            print("Category was not found after creation")
             return
         }
         

@@ -17,11 +17,6 @@ protocol DismissProtocol: AnyObject {
 
 final class AddNewTrackerViewController: UIViewController {
     
-    // MARK: - Public properties
-    
-    weak var delegate: ReloadCollectionProtocol?
-    weak var createDelegate: CreateTrackerProtocol?
-    
     // MARK: - Private properties
     
     private lazy var newHabitButton: UIButton = {
@@ -85,6 +80,11 @@ final class AddNewTrackerViewController: UIViewController {
             self.present(navigationController, animated: true)
         }
     }
+    
+    // MARK: - Delegates
+    
+    weak var delegate: ReloadCollectionProtocol?
+    weak var createDelegate: CreateTrackerProtocol?
 }
 
 // MARK: - Extensions

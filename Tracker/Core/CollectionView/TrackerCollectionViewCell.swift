@@ -19,7 +19,7 @@ protocol TrackerCompletedDelegate: AnyObject {
 final class TrackerCollectionViewCell: UICollectionViewCell {
     
     // MARK: - Public properties
-
+    
     lazy var bodyView: UIView = {
         let bodyView = UIView()
         bodyView.layer.cornerRadius = 16
@@ -74,7 +74,6 @@ final class TrackerCollectionViewCell: UICollectionViewCell {
     private var isCompletedToday: Bool = false
     private var trackerID: UUID?
     private var indexPath: IndexPath?
-    private var completedDays: Int? = 7
     
     // MARK: - Lifecycle
     
@@ -148,6 +147,7 @@ final class TrackerCollectionViewCell: UICollectionViewCell {
             assertionFailure("no trackerID")
             return
         }
+
         if isCompletedToday {
             delegate?.uncompletedTracker(id: trackerID, indexPath: indexPath)
         } else {

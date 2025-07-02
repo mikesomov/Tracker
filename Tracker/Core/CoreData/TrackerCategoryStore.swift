@@ -68,14 +68,11 @@ extension TrackerCategoryStore {
     
     func decodingCategory(from trackerCategoryCoreData: TrackerCategoryCoreData) -> TrackerCategory? {
         guard let title = trackerCategoryCoreData.title else { return nil }
-        guard let trackers = trackerCategoryCoreData.trackers else { return nil }
-        
-        return TrackerCategory(title: title, trackers: trackers.compactMap { coreDataTracker -> Tracker? in
-            if let coreDataTracker = coreDataTracker as? TrackerCoreData {
-                return trackerStore.decodingTrackers(from: coreDataTracker)
-            }
-            return nil
-        })
+
+        let coreDataTrackers = (trackerCategoryCoreData.trackers?.allObjects as? [TrackerCoreData]) ?? []
+        let decodedTrackers = coreDataTrackers.compactMap { trackerStore.decodingTrackers(from: $0) }
+
+        return TrackerCategory(title: title, trackers: decodedTrackers)
     }
     
     func createCategoryAndTracker(tracker: Tracker, with titleCategory: String) {

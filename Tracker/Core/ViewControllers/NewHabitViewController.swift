@@ -244,8 +244,14 @@ extension NewHabitViewController: UITableViewDelegate, UITableViewDataSource {
         let selectedItem = tableList[indexPath.row]
         
         if selectedItem == "Категория" {
+            let categoryViewModel = CategoryViewModel()
             let categoryViewController = CategoryViewController()
-            categoryViewController.delegate = self
+            categoryViewController.viewModel = categoryViewModel
+            categoryViewController.onCategorySelected = { [weak self] category in
+                self?.selectedCategory = category
+                self?.tableView.reloadData()
+                self?.buttonValidation()
+            }
             let navigationController = UINavigationController(rootViewController: categoryViewController)
             present(navigationController, animated: true)
         }
@@ -301,8 +307,7 @@ extension NewHabitViewController: UITextFieldDelegate {
 }
 
 extension NewHabitViewController: CategoryViewControllerDelegate {
-    
-    func categoryScreen(_ screen: CategoryViewController, didSelectCategory category: TrackerCategory) {
+    func categoryScreen(didSelectCategory category: TrackerCategory) {
         selectedCategory = category
         buttonValidation()
         tableView.reloadData()
